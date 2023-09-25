@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:qr_scanner_overlay/qr_scanner_overlay.dart';
+
 
 import 'HalfBlueHalfBlackBorderPainter.dart';
+
+
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -11,6 +15,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
+
   String scanResult = "";
   late TabController _tabController;
   int currentTabIndex = 0; // To keep track of the selected tab
@@ -52,27 +57,46 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 children: <Widget>[
                   SizedBox(height: 80),
                   Text(
-                    currentTabIndex == 0 ? 'Scan QR Code' : 'Scan Bar Code', // Display different text based on the selected tab
+                    currentTabIndex == 0 ? 'Scan QR Code' : 'Scan Bar Code',
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
                   ),
                   SizedBox(height: 20),
                   Text(
-                    'Please point the camera at ${currentTabIndex == 0 ? 'QR code' : 'Bar code'}', // Display different text based on the selected tab
+                    'Please point the camera at ${currentTabIndex == 0 ? 'QR code' : 'Bar code'}',
                     style: TextStyle(fontSize: 16, color: Colors.white),
                   ),
                   SizedBox(height: 20),
+
                   Container(
                     width: 0.8 * MediaQuery.of(context).size.width,
                     height: 0.4 * MediaQuery.of(context).size.height,
-                    child: MobileScanner(
-                      fit: BoxFit.fill,
-                      onDetect: (result) {
-                        setState(() {
-                          scanResult = result as String;
-                        });
-                      },
+                    decoration: BoxDecoration(
+                      color: Colors.white, // Specify a background color to see the rounded corners
+                      borderRadius: BorderRadius.circular(20.0), // Adjust the radius as needed
                     ),
-                  ),
+                    child: Stack(
+                      children: [
+
+                        MobileScanner(
+                          scanWindow: Rect.fromLTRB(10, 10, 10, 10),
+                          overlay:QRScannerOverlay(overlayColor: Colors.blue,
+                            borderRadius: 35,
+
+                            scanAreaHeight: height * 0.4,
+                            scanAreaWidth:width * 0.8 ,
+                            borderColor: Colors.blue,) ,
+                          onDetect: (result) {
+                            setState(() {
+                              scanResult = result as String;
+                            });
+                          },
+                        ),
+
+                      ],
+                    ),
+                  )
+
+
                 ],
               ),
             ),
