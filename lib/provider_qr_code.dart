@@ -42,7 +42,7 @@ class QrCodeProvider with ChangeNotifier{
     _isScanning = scanning;
     notifyListeners();
   }
-  void setResult(Barcode scanData) {
+  void setResult(Barcode? scanData) {
     _result = scanData;
     notifyListeners();
   }

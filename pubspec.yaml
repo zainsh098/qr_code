@@ -39,8 +39,7 @@ dependencies:
   provider: ^6.0.5
   image_picker: ^1.0.4
   qr_code_scanner: ^1.0.1
-  mobile_scanner: ^3.4.1
-  qrscan: ^0.3.3
+
   permission_handler: ^10.4.5
 
 
