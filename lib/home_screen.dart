@@ -4,9 +4,8 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'HalfBlueHalfBlackBorderPainter.dart';
-
-
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -15,12 +14,12 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
-
+class _HomeScreenState extends State<HomeScreen>
+    with SingleTickerProviderStateMixin {
   Barcode? result;
   QRViewController? controller;
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
-
+  bool isScanning = false;
   // In order to get hot reload to work we need to pause the camera if the platform
   // is android, or resume the camera if the platform is iOS.
   @override
@@ -58,14 +57,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery
-        .of(context)
-        .size
-        .width;
-    final height = MediaQuery
-        .of(context)
-        .size
-        .height;
+    final width = MediaQuery.of(context).size.width;
+    final height = MediaQuery.of(context).size.height;
     return Scaffold(
       backgroundColor: Colors.black,
       body: Column(
@@ -80,41 +73,18 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                   SizedBox(height: 80),
                   Text(
                     currentTabIndex == 0 ? 'Scan QR Code' : 'Scan Bar Code',
-                    style: TextStyle(fontSize: 20,
+                    style: TextStyle(
+                        fontSize: 20,
                         fontWeight: FontWeight.bold,
                         color: Colors.white),
                   ),
                   SizedBox(height: 20),
                   Text(
-                    'Please point the camera at ${currentTabIndex == 0
-                        ? 'QR code'
-                        : 'Bar code'}',
+                    'Please point the camera at ${currentTabIndex == 0 ? 'QR code' : 'Bar code'}',
                     style: TextStyle(fontSize: 16, color: Colors.white),
                   ),
                   SizedBox(height: 20),
-
-
                   Expanded(flex: 4, child: _buildQrView(context)),
-                  Expanded(
-                    flex: 1,
-                    child: FittedBox(
-                      fit: BoxFit.contain,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: <Widget>[
-                          if (result != null)
-                            Text(
-                                'Barcode Type: ${describeEnum(result!.format)}   Data: ${result!.code}',
-                            style:  TextStyle(color: Colors.amber,fontSize: 20),)
-                          else
-                            const Text('Scan a code',style:  TextStyle(color: Colors.amber,fontSize: 20)),
-
-                        ],
-                      ),
-                    ),
-                  )
-
-
 
                 ],
               ),
@@ -139,15 +109,14 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                   ],
                   labelColor: Colors.blue,
                   unselectedLabelColor: Colors.white,
-                  labelStyle: TextStyle(
-                      fontSize: 14, fontWeight: FontWeight.bold),
+                  labelStyle:
+                      TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                   unselectedLabelStyle: TextStyle(fontSize: 14),
                   indicator: BoxDecoration(
                     border: Border(
                       top: BorderSide(
                         color: Colors.blue,
                         width: 3,
-
                       ),
                     ),
                   ),
@@ -156,11 +125,15 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             ),
           ),
           Divider(),
-          SizedBox(height: 15,),
+          SizedBox(
+            height: 15,
+          ),
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              SizedBox(width: 30,),
+              SizedBox(
+                width: 30,
+              ),
               Container(
                 height: 45,
                 width: 45,
@@ -170,7 +143,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 ),
                 child: Icon(Icons.browse_gallery, color: Colors.blue),
               ),
-              SizedBox(width: 15,),
+              SizedBox(
+                width: 15,
+              ),
               Padding(
                 padding: const EdgeInsets.only(right: 10),
                 child: Container(
@@ -183,41 +158,52 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                   child: Icon(Icons.file_copy, color: Colors.blue),
                 ),
               ),
-              SizedBox(width: 15,),
-              Container(
-                height: 80,
-                width: 80,
-                decoration: BoxDecoration(
-                  color: Colors.black,
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    width: 5,
-                    style: BorderStyle.solid,
-                    color: Colors.white12,
+              SizedBox(
+                width: 15,
+              ),
+              GestureDetector(
+                onTap: () {
+                  if (!isScanning) {
+                    if (controller != null) {
+                      controller!.resumeCamera();
+                    }
+                    setState(() {
+                      isScanning = true;
+                    });
+                  } else {
+                    if (result != null) {
+                      _showResultDialog(context, result!);
+                    }
+                  }
+                },
+                child: Container(
+                  height: 80,
+                  width: 80,
+                  decoration: BoxDecoration(
+                    color: Colors.black,
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      width: 5,
+                      style: BorderStyle.solid,
+                      color: Colors.white12,
+                    ),
+                  ),
+                  child: CustomPaint(
+                    painter: HalfBlueHalfBlackBorderPainter(6),
                   ),
                 ),
-                child: CustomPaint(
-                  painter: HalfBlueHalfBlackBorderPainter(6),
-                ),
-              ),
+              )
             ],
           ),
-        ],
-      ),
+      ]
+    ),
     );
   }
 
-
   Widget _buildQrView(BuildContext context) {
     // For this example we check how width or tall the device is and change the scanArea and overlay accordingly.
-    var scanArea = (MediaQuery
-        .of(context)
-        .size
-        .width < 400 ||
-        MediaQuery
-            .of(context)
-            .size
-            .height < 400)
+    var scanArea = (MediaQuery.of(context).size.width < 400 ||
+            MediaQuery.of(context).size.height < 400)
         ? 150.0
         : 300.0;
     // we need to listen for Flutter SizeChanged notification and update controller
@@ -233,7 +219,6 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       onPermissionSet: (ctrl, p) => _onPermissionSet(context, ctrl, p),
     );
   }
-
   void _onQRViewCreated(QRViewController controller) {
     setState(() {
       this.controller = controller;
@@ -253,6 +238,55 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       );
     }
   }
+  void _showResultDialog(BuildContext context, Barcode result) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Scanned Result'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Barcode Type: ${describeEnum(result.format)}'),
+              SizedBox(height: 10),
+              Text(
+                'Data:',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 5),
+              InkWell(
+                onTap: () {
+                  _launchURL(result.code.toString());
+                },
+                child: Text(
+                  result.code.toString(),
+                  style: TextStyle(
+                    color: Colors.blue,
+                    decoration: TextDecoration.underline,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
-
+  Future<void> _launchURL(String url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      print('Could not launch $url');
+    }
+  }
 }
