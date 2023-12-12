@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_code/home_screen.dart';
+
 import 'package:qr_code/provider_qr_code.dart';
+import 'package:qr_code/views/qr_scanner_screen.dart';
+
 
 void main() {
   runApp(const MyApp());
@@ -16,7 +19,7 @@ class MyApp extends StatelessWidget {
     return ChangeNotifierProvider(create: (_) => QrCodeProvider(),child:
     MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
+      title: 'Flutter QrCode ',
       theme: ThemeData(
 
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
